@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Story Player</string>
+    <string name="main_fragment">MainFragment</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="story_image">Story image</string>
+</resources>
