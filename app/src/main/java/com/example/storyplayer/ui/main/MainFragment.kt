@@ -6,12 +6,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.storyplayer.R
 import com.example.storyplayer.databinding.FragmentMainBinding
 import com.example.storyplayer.ui.storygroups.StoryGroupsFragment
 import com.example.storyplayer.ui.storyoverview.StoryOverviewAdapter
+import com.google.android.material.color.MaterialColors
 
 class MainFragment : Fragment() {
 
@@ -44,11 +44,15 @@ class MainFragment : Fragment() {
         parentFragmentManager.addOnBackStackChangedListener {
             if (isStoryViewAdded()) {
                 binding.rvStoryGroups.visibility = View.GONE
-                binding.main.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
+                binding.main.setBackgroundColor(MaterialColors.getColor(binding.main, com.google.android.material.R.attr.colorOnSecondary))
+                binding.viewTop.setBackgroundColor(MaterialColors.getColor(binding.main, com.google.android.material.R.attr.colorOnSecondary))
+                binding.viewBot.setBackgroundColor(MaterialColors.getColor(binding.main, com.google.android.material.R.attr.colorOnSecondary))
             }
             else {
                 binding.rvStoryGroups.visibility = View.VISIBLE
-                binding.main.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+                binding.main.setBackgroundColor(MaterialColors.getColor(binding.main, com.google.android.material.R.attr.colorOnPrimary))
+                binding.viewTop.setBackgroundColor(MaterialColors.getColor(binding.main, com.google.android.material.R.attr.colorPrimaryVariant))
+                binding.viewBot.setBackgroundColor(MaterialColors.getColor(binding.main, com.google.android.material.R.attr.colorPrimaryVariant))
             }
         }
         viewModel.storyGroupIndexLiveData.observe(viewLifecycleOwner) {
