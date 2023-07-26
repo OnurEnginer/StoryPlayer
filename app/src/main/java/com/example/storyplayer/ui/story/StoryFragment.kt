@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.*
 import android.view.View.OnTouchListener
-import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -55,7 +54,6 @@ class StoryFragment : Fragment() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -81,7 +79,11 @@ class StoryFragment : Fragment() {
             binding.pbProgressBar.progress = (((index/stories.size.toDouble())*binding.pbProgressBar.max) + (stories[index].duration-it)*(binding.pbProgressBar.max/(stories.size*stories[index].duration).toDouble())).toInt()
         }
 
-        val storyGroup = requireArguments().getParcelable(STORY_GROUP, StoryGroup::class.java)!!
+        val storyGroup = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireArguments().getParcelable(STORY_GROUP, StoryGroup::class.java)!!
+        } else {
+            requireArguments().getParcelable(STORY_GROUP)!!
+        }
         val index = mainViewModel.getLastSeenIndex(storyGroup.id)
         var totalTime = 0L
         for (story in storyGroup.stories)
@@ -91,9 +93,12 @@ class StoryFragment : Fragment() {
         storyViewModel.setStoryGroup(storyGroup)
         storyViewModel.setStoryIndex(index)
     }
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun setStory(index: Int) {
-        val storyGroup = requireArguments().getParcelable(STORY_GROUP, StoryGroup::class.java)!!
+        val storyGroup = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireArguments().getParcelable(STORY_GROUP, StoryGroup::class.java)!!
+        } else {
+            requireArguments().getParcelable(STORY_GROUP)!!
+        }
         val story = storyGroup.stories[index]
         story.let {
             storyViewModel.setStory(it)
@@ -180,9 +185,12 @@ class StoryFragment : Fragment() {
     private fun updateLastSeen(storyGroupId: String, storyId: String?) {
         mainViewModel.setLastSeenId(storyGroupId, storyId)
     }
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun getNextStory() {
-        val storyGroup = requireArguments().getParcelable(STORY_GROUP, StoryGroup::class.java)!!
+        val storyGroup = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireArguments().getParcelable(STORY_GROUP, StoryGroup::class.java)!!
+        } else {
+            requireArguments().getParcelable(STORY_GROUP)!!
+        }
         val index = storyViewModel.storyIndexLiveData.value
         if (index != null) {
             if (index >= storyGroup.stories.size-1) {
@@ -195,9 +203,12 @@ class StoryFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun getPrevStory() {
-        val storyGroup = requireArguments().getParcelable(STORY_GROUP, StoryGroup::class.java)!!
+        val storyGroup = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireArguments().getParcelable(STORY_GROUP, StoryGroup::class.java)!!
+        } else {
+            requireArguments().getParcelable(STORY_GROUP)!!
+        }
         val index = mainViewModel.getLastSeenIndex(storyGroup.id)
         if (index <= 0) {
             mainViewModel.getPrevStoryGroup()
@@ -276,7 +287,6 @@ class StoryFragment : Fragment() {
                 displayMetrics.widthPixels
             }
         }
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
             v?.performClick()
             when (event?.action) {

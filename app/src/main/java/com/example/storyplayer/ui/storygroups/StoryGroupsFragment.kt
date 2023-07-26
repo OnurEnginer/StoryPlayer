@@ -3,7 +3,6 @@ package com.example.storyplayer.ui.storygroups
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -62,25 +61,35 @@ class StoryGroupsFragment : Fragment() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
     override fun onResume() {
         super.onResume()
         (requireActivity() as AppCompatActivity).apply {
             supportActionBar?.hide()
-            window.insetsController?.apply {
-                hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.insetsController?.apply {
+                    hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+            }
+            else {
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+                actionBar?.show()
             }
         }
     }
-    @RequiresApi(Build.VERSION_CODES.R)
     override fun onPause() {
         super.onPause()
         (requireActivity() as AppCompatActivity).apply {
             supportActionBar?.show()
-            window.insetsController?.apply {
-                show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.insetsController?.apply {
+                    show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+            }
+            else {
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+                actionBar?.hide()
             }
         }
     }
