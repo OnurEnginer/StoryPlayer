@@ -40,16 +40,21 @@ class StoryGroupsFragment : Fragment() {
         mainViewModel.list = mainViewModel.getStories()
         viewPager = binding.vpStories
         viewPager.adapter = StorySlidePagerAdapter(this).apply {
-            mainViewModel.list.forEach {
-                addFragment(StoryFragment.newInstance(it))
+            mainViewModel.list.forEachIndexed {index, element ->
+                addFragment(StoryFragment.newInstance(element, index))
             }
         }
 
         viewPager.setPageTransformer(CubeOutPageTransformer())
         viewPager.registerOnPageChangeCallback(object: OnPageChangeCallback(){
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                mainViewModel.setStoryGroup(position)
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+                if (positionOffset == 0f)
+                    mainViewModel.setStoryGroup(position)
             }
         })
         mainViewModel.storyGroupIndexLiveData.observe(viewLifecycleOwner) {

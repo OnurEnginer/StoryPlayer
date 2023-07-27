@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.storyplayer.data.Story
 import com.example.storyplayer.data.StoryGroup
-import kotlin.properties.Delegates
 
 class StoryViewModel : ViewModel() {
     val storyLiveData = MutableLiveData<Story>()
@@ -56,11 +55,12 @@ class StoryViewModel : ViewModel() {
 
 
     private fun startTimer(time: Long) {
+        if (this::timer.isInitialized)
+            timer.cancel()
         timer = object : CountDownTimer(time, 10) {
             override fun onTick(millisUntilFinished: Long) {
                 timeRemainingLiveData.postValue(millisUntilFinished)
             }
-
             override fun onFinish() {
                 setIsEnded(true)
                 stopStory()

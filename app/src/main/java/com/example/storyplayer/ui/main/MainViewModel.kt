@@ -14,7 +14,7 @@ class MainViewModel : ViewModel() {
         listOf(
             StoryGroup("1",listOf(Story("1", "img_feels_good_man", false, 5000), Story("2","img_mcqueen", false, 5000),Story("1", "img_miami_heat", false, 5000)),"Ahmad","img_ahmad"),
             StoryGroup("2",listOf(Story("6", "img_japan_1", false, 5000),Story("7", "img_japan_2", false, 5000)),"Ellie","img_ellie"),
-            StoryGroup("3",listOf(Story("15", "img_barbie", false, 5000), Story("16", "sample_video", true, 10000)),"Cho","img_cho")
+            StoryGroup("3",listOf(Story("15", "img_barbie", false, 5000), Story("16", "pigeon_video", true, 8500)),"Cho","img_cho")
         )
     fun setStoryGroup(index: Int) {
         storyGroupIndexLiveData.postValue(index)

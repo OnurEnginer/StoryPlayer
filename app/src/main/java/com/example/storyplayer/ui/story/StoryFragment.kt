@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.*
 import android.view.View.OnTouchListener
 import androidx.constraintlayout.widget.ConstraintSet
@@ -30,11 +31,13 @@ class StoryFragment : Fragment() {
 
     companion object {
         private const val STORY_GROUP = "STORY_GROUP"
+        private const val STORY_GROUP_INDEX = "STORY_GROUP_INDEX"
         private const val TOUCH_THRESHOLD = 500L
-        fun newInstance(sg: StoryGroup) =
+        fun newInstance(sg: StoryGroup, index: Int) =
             StoryFragment().apply{
                 arguments = Bundle().apply{
                     putParcelable(STORY_GROUP, sg)
+                    putInt(STORY_GROUP_INDEX, index)
             }
         }
     }
@@ -79,6 +82,11 @@ class StoryFragment : Fragment() {
             binding.pbProgressBar.progress = (((index/stories.size.toDouble())*binding.pbProgressBar.max) + (stories[index].duration-it)*(binding.pbProgressBar.max/(stories.size*stories[index].duration).toDouble())).toInt()
         }
 
+        mainViewModel.storyGroupIndexLiveData.observe(viewLifecycleOwner) {
+            if (it == requireArguments().getInt(STORY_GROUP_INDEX))
+                resumeStory()
+        }
+
         val storyGroup = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requireArguments().getParcelable(STORY_GROUP, StoryGroup::class.java)!!
         } else {
@@ -114,7 +122,7 @@ class StoryFragment : Fragment() {
                 player.addListener(object: Player.Listener{
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         super.onPlaybackStateChanged(playbackState)
-                        if (playbackState == Player.STATE_READY) {
+                        if (playbackState == Player.STATE_READY && mainViewModel.storyGroupIndexLiveData.value == requireArguments().getInt(STORY_GROUP_INDEX)) {
                             storyViewModel.startStory(it)
                             updateLastSeen(storyGroup.id, story.id)
                         }
@@ -144,8 +152,10 @@ class StoryFragment : Fragment() {
                             dataSource: DataSource?,
                             isFirstResource: Boolean
                         ): Boolean {
-                            storyViewModel.startStory(it)
-                            updateLastSeen(storyGroup.id, story.id)
+                            if (mainViewModel.storyGroupIndexLiveData.value == requireArguments().getInt(STORY_GROUP_INDEX)) {
+                                storyViewModel.startStory(it)
+                                updateLastSeen(storyGroup.id, story.id)
+                            }
                             return false
                         }
                     }
@@ -166,6 +176,7 @@ class StoryFragment : Fragment() {
         if (story?.isVideo == true)
             player.play()
         storyViewModel.resumeStory()
+        storyViewModel.storyGroupLiveData.value?.let { storyViewModel.storyLiveData.value?.let { it1 -> updateLastSeen(it.id, it1.id) } }
     }
 
     private fun resetStory() {
@@ -259,7 +270,8 @@ class StoryFragment : Fragment() {
     }
     override fun onResume() {
         super.onResume()
-        playStory()
+        if (mainViewModel.storyGroupIndexLiveData.value == requireArguments().getInt(STORY_GROUP_INDEX))
+            playStory()
     }
     override fun onPause() {
         super.onPause()
@@ -273,10 +285,8 @@ class StoryFragment : Fragment() {
     }
     inner class StoryTouchListener: OnTouchListener {
         private var touchTime: Long = 0
-        private var longTouch = false
         private fun getScreenWidth (): Int {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-
                 val windowMetrics = requireActivity().windowManager.currentWindowMetrics
                 val insets: Insets = windowMetrics.windowInsets
                     .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
@@ -297,7 +307,6 @@ class StoryFragment : Fragment() {
                 MotionEvent.ACTION_UP -> {
                     if (System.currentTimeMillis() - touchTime > TOUCH_THRESHOLD) {
                         resumeStory()
-                        longTouch = false
                     }
                     else if (event.x/getScreenWidth() > 0.5) {
                         getNextStory()
